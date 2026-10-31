@@ -1,0 +1,13 @@
+.preview-chrome/
+compact-preview.png
+test-content.txt
+faqja-15.png
+professor-runtime.js
+simple-runtime.js
+simple-solutions.json
+study-guides.json
+study-runtime.js
+*.log
+.env
+.env.*
+node_modules/
