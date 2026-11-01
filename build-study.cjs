@@ -16,6 +16,15 @@ const tasks=[
 ];
 const pages={};for(let i=1;i<=15;i++)pages[i]='data:image/png;base64,'+fs.readFileSync(i===15?"faqja-15-public.png":`faqja-${String(i).padStart(2,'0')}.png`).toString('base64');
 const questionImages=tasks.map((_,i)=>[1,2].map(n=>`pyetja-${i}-${n}.png`).filter(p=>fs.existsSync(p)).map(p=>"data:image/png;base64,"+fs.readFileSync(p).toString("base64")));
-const lessons=require("./professor-lessons.cjs");
-const html=fs.readFileSync('compact-template.html','utf8').replace('{{STYLE}}',()=>fs.readFileSync('compact.css','utf8')).replace('{{DATA}}',()=> 'const tasks='+JSON.stringify(tasks)+', pages='+JSON.stringify(pages)+', questionImages='+JSON.stringify(questionImages)+', lessons='+JSON.stringify(lessons)+';').replace('{{RUNTIME}}',()=>fs.readFileSync('compact-runtime.js','utf8'));
-fs.writeFileSync('Ushtro-Senzoret.html',html);fs.writeFileSync('index.html',html);console.log('Built compact page: 13 tasks, 99 steps');
+const solutionImages=tasks.map((_,i)=>Array.from({length:6},(_,j)=>'zgjidhja-'+i+'-'+(j+1)+'.png').filter(p=>fs.existsSync(p)).map(p=>'data:image/png;base64,'+fs.readFileSync(p).toString('base64')));
+if(solutionImages.some(x=>!x.length))throw Error('Missing original solution');
+const professorLessons=require('./professor-lessons.cjs');
+const intros=require('./teaching-intros.cjs');
+const introCounts=intros.map(x=>x.facts.length+2);
+const lessons=professorLessons.map((steps,i)=>{
+ const x=intros[i];
+ const lead=[...x.facts,x.ask,x.why].map(([question,value,why])=>[question,value,why]);
+ return [...lead,...steps];
+});
+const html=fs.readFileSync('compact-template.html','utf8').replace('{{STYLE}}',()=>fs.readFileSync('compact.css','utf8')).replace('{{DATA}}',()=> 'const tasks='+JSON.stringify(tasks.map(t=>[t[0],t[1],null,null,t[4]]))+', pages='+JSON.stringify(pages)+', questionImages='+JSON.stringify(questionImages)+', solutionImages='+JSON.stringify(solutionImages)+', lessons='+JSON.stringify(lessons)+', introCounts='+JSON.stringify(introCounts)+';').replace('{{RUNTIME}}',()=>fs.readFileSync('method-runtime.js','utf8'));
+fs.writeFileSync('Ushtro-Senzoret.html',html);fs.writeFileSync('index.html',html);console.log('Built 13 original solutions in '+solutionImages.reduce((n,x)=>n+x.length,0)+' original image sections');
